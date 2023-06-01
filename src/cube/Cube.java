@@ -8,7 +8,7 @@ public class Cube {
 	static final double PIXEL_SCALE = 100;
 	static final int MARGIN_Y = 40;
 	static final int MARGIN_X = 15;
-	static final int PIERCE_THRESHOLD = 5;
+	static final int PIERCE_THRESHOLD = 10;
 
 	double m = 1.0;
 	double R = 2.0;
@@ -69,7 +69,7 @@ public class Cube {
 			vx *= -1;
 		if (anyPierce() >= 0)
 			spin *= -1;
-		pointsPierceDepth[iterator]++;
+//		pointsPierceDepth[iterator]++;
 //		double v = Math.sqrt(vx*vx+vy*vy);
 //		vx/=v;
 //		vy/=v;
@@ -89,7 +89,7 @@ public class Cube {
 			vy *= -1;
 		if (anyPierce() >= 0)
 			spin *= -1;
-		pointsPierceDepth[iterator]++;
+//		pointsPierceDepth[iterator]++;
 //		double v = Math.sqrt(vx*vx+vy*vy);
 //		vx/=v;
 //		vy/=v;
@@ -121,15 +121,19 @@ public class Cube {
 		for (int i = 0; i < 4; i++) {
 			if (xpoints[i] <= 0) {
 				reflectX(i, false);
+				x-=xpoints[i]/PIXEL_SCALE;
 			}
 			if (xpoints[i] >= -MARGIN_X + screenWidth) {
 				reflectX(i, true);
+				x+=(screenWidth-MARGIN_X-xpoints[i])/PIXEL_SCALE;
 			}
 			if (ypoints[i] <= 0) {
 				reflectY(i, false);
+				y-=ypoints[i]/PIXEL_SCALE;
 			}
 			if (ypoints[i] >= -MARGIN_Y + screenHeight) {
 				reflectY(i, true);
+				y+=(screenHeight-MARGIN_Y-ypoints[i])/PIXEL_SCALE;
 			}
 			if (xpoints[i] > 0 && xpoints[i] < -MARGIN_X + screenWidth && ypoints[i] > 0
 					&& ypoints[i] < -MARGIN_Y + screenHeight)
