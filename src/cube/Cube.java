@@ -8,18 +8,20 @@ public class Cube {
 	static final double PIXEL_SCALE = 100;
 	static final int MARGIN_Y = 40;
 	static final int MARGIN_X = 15;
+	static final int PIERCE_THRESHOLD = 5;
 
 	double m = 1.0;
-	double R = 0.10;
-	double E = 1.0;
+	double R = 2.0;
+	double E = 0.50;
 	double x = 1, y = 1;
 	double angle = 0;
 	double vx, vy;
 	double spin;
-	double energyRatio = 0.99;
+	double energyRatio = 0.5;
 	private int xpoints[] = new int[4];
 	private int ypoints[] = new int[4];
 	private int screenWidth, screenHeight;
+	private int pointsPierceDepth[] = new int[4]; //Relational depth of pierce through wall
 
 	public Cube(int screenWidth, int screenHeight) {
 		setDynamicParameters();
@@ -47,18 +49,56 @@ public class Cube {
 		g.setFont(new Font("Courier New", Font.PLAIN, 12));
 		StringBuilder sb = new StringBuilder();
 		Formatter formatter = new Formatter(sb);
-		formatter.format("(%f,%f) Speed=(%f,%f)", x, y, vx, vy);
+		formatter.format("(%f,%f) Speed=(%f,%f) Angular speed= %f", x, y, vx, vy, spin);
 		formatter.close();
 		g.drawString(sb.toString(), 20, 30);
 		minimizeAngle();
 	}
 
-	private void reflectX(int iterator) {
-		vx*=-1;
+	private int anyPierce() {
+		for (int i = 0; i < 4; i++)
+			if (pointsPierceDepth[i]>PIERCE_THRESHOLD)
+				return i;
+		return -1;
+	}
+	
+	private void reflectX(int iterator, boolean isPositive) {
+		if (vx > 0 && isPositive)
+			vx *= -1;
+		if (vx < 0 && !isPositive)
+			vx *= -1;
+		if (anyPierce() >= 0)
+			spin *= -1;
+		pointsPierceDepth[iterator]++;
+//		double v = Math.sqrt(vx*vx+vy*vy);
+//		vx/=v;
+//		vy/=v;
+//		double v0 = spin*R*Math.sqrt(2.0)+v;
+//		spin = (Math.sqrt(2.0)*m*R*v0-Math.sqrt(2*m*m*R*R*v0*v0-26/6*m*R*R*(m*v0*v0/2-E)));
+//		spin/=13/6*m*R*R;
+//		v = v0-spin*R*Math.sqrt(2);
+//		vx*=v;
+//		vy*=v;
+
 	}
 
-	private void reflectY(int iterator) {
-		vy*=-1;
+	private void reflectY(int iterator, boolean isPositive) {
+		if (vy > 0 && isPositive)
+			vy *= -1;
+		if (vy < 0 && !isPositive)
+			vy *= -1;
+		if (anyPierce() >= 0)
+			spin *= -1;
+		pointsPierceDepth[iterator]++;
+//		double v = Math.sqrt(vx*vx+vy*vy);
+//		vx/=v;
+//		vy/=v;
+//		double v0 = spin*R*Math.sqrt(2.0)+v;
+//		spin = (Math.sqrt(2.0)*m*R*v0-Math.sqrt(2*m*m*R*R*v0*v0-26/6*m*R*R*(m*v0*v0/2-E)));
+//		spin/=13/6*m*R*R;
+//		v = v0-spin*R*Math.sqrt(2);
+//		vx*=v;
+//		vy*=v;
 	}
 
 	private void minimizeAngle() {
@@ -79,10 +119,22 @@ public class Cube {
 			ypoints[i] = (int) (y * PIXEL_SCALE + R * PIXEL_SCALE * Math.sin(angle + i * Math.PI / 2));
 		}
 		for (int i = 0; i < 4; i++) {
-			if (xpoints[i] <= 0 || xpoints[i] >= -MARGIN_X + screenWidth)
-				reflectX(i);
-			if (ypoints[i] <= 0 || ypoints[i] >= -MARGIN_Y + screenHeight)
-				reflectY(i);
+			if (xpoints[i] <= 0) {
+				reflectX(i, false);
+			}
+			if (xpoints[i] >= -MARGIN_X + screenWidth) {
+				reflectX(i, true);
+			}
+			if (ypoints[i] <= 0) {
+				reflectY(i, false);
+			}
+			if (ypoints[i] >= -MARGIN_Y + screenHeight) {
+				reflectY(i, true);
+			}
+			if (xpoints[i] > 0 && xpoints[i] < -MARGIN_X + screenWidth && ypoints[i] > 0
+					&& ypoints[i] < -MARGIN_Y + screenHeight)
+				pointsPierceDepth[i] = 0;
 		}
+
 	}
 }
