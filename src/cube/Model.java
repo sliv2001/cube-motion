@@ -1,6 +1,7 @@
 package cube;
 
 import javax.swing.*;
+import java.applet.Applet;
 
 public class Model extends JFrame {
 
@@ -30,9 +31,10 @@ public class Model extends JFrame {
     private void setupField() {
         add(field);
     }
+    
+    public static void main(String[] args) {
+		Model model = new Model();
+		model.setVisible(true);
 
-    public static void main(String args[]) {
-    	Model model = new Model();
-        model.setVisible(true);
-    }
+	}
 }
